@@ -25,8 +25,10 @@
             android:id="@+id/titulo"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginTop="15dp"
-            android:textSize="50dp"
+            android:layout_marginTop="0dp"
+            android:text="Foliada de Melide"
+            android:gravity="center"
+            android:textSize="30dp"
             android:textColor="@color/white"
             android:fontFamily="@font/jeju_hallasan"/>
     </androidx.appcompat.widget.Toolbar>
@@ -76,10 +78,29 @@
         android:fontFamily="@font/jeju_hallasan"/>
 
     <TextView
-        android:id="@+id/txt_grupos"
+        android:id="@+id/txt_hora"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/txt_data"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="15dp"
+        android:fontFamily="@font/jeju_hallasan"
+        android:text="Hora: "/>
+    <TextView
+        android:id="@+id/hora"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/bt_no_favorita"
+        android:layout_toRightOf="@+id/txt_data"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="15dp"
+        android:fontFamily="@font/jeju_hallasan"/>
+
+    <TextView
+        android:id="@+id/txt_grupos"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/txt_hora"
         android:layout_marginTop="10dp"
         android:layout_marginLeft="15dp"
         android:fontFamily="@font/jeju_hallasan"
@@ -88,7 +109,7 @@
         android:id="@+id/grupos"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/fecha"
+        android:layout_below="@+id/hora"
         android:layout_toRightOf="@+id/txt_grupos"
         android:layout_marginTop="10dp"
         android:layout_marginLeft="15dp"

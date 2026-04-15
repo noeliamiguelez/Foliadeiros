@@ -49,6 +49,7 @@ public class InfoFoliada extends AppCompatActivity {
         TextView titulo= (TextView) findViewById(R.id.titulo);
         ImageView img_cartel= (ImageView) findViewById(R.id.cartel);
         TextView txt_fecha= (TextView) findViewById(R.id.fecha);
+        TextView txt_hora= (TextView) findViewById(R.id.hora);
         TextView txt_grupo= (TextView) findViewById(R.id.grupos);
         TextView txt_descripcion= (TextView) findViewById(R.id.descripcion);
 
@@ -58,14 +59,25 @@ public class InfoFoliada extends AppCompatActivity {
                 if (response.isSuccessful()&&response.body()!=null){
                     Foliada foliada= response.body();
                     titulo.setText(foliada.getNombre());
-                    Glide.with(InfoFoliada.this).load(foliada.getImaxe()).into(img_cartel);
-                    txt_fecha.setText(foliada.getFecha());
-                    txt_descripcion.setText(foliada.getDescripcion());
-
-                    Log.d("API", "OBJETO: " + response.body().toString());
-                    Log.d("API", "NOMBRE: " + foliada.getNombre());
-                    Log.d("API", "IMG: " + foliada.getImaxe());
-
+                    if(foliada.getImaxe()!=null && !foliada.getImaxe().isEmpty()){
+                        Glide.with(InfoFoliada.this).load(foliada.getImaxe()).into(img_cartel);
+                    }else{
+                        img_cartel.setImageResource(R.drawable.image_not_found);
+                    }
+                    if (foliada.getFecha()!=null && foliada.getFecha().isEmpty()){
+                        txt_fecha.setText(foliada.getFecha());
+                    }else{
+                        txt_fecha.setText(" ");
+                    }if (foliada.getHora()!=null&& foliada.getHora().isEmpty()){
+                        txt_hora.setText(foliada.getHora());
+                    }else{
+                        txt_hora.setText(" ");
+                    }
+                    if (foliada.getDescripcion()!=null&&foliada.getDescripcion().isEmpty()){
+                        txt_descripcion.setText(foliada.getDescripcion());
+                    }else{
+                        txt_descripcion.setText(" ");
+                    }
                 }
             }
 
