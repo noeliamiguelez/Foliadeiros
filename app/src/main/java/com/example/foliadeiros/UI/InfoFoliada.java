@@ -1,10 +1,13 @@
 package com.example.foliadeiros.UI;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -26,6 +29,12 @@ import com.example.foliadeiros.Api.RetrofitClient;
 import com.example.foliadeiros.Model.Foliada;
 import com.example.foliadeiros.Model.Grupo;
 import com.example.foliadeiros.R;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -82,6 +91,11 @@ public class InfoFoliada extends AppCompatActivity {
 
         api = RetrofitClient.getClient().create(FoliadaApiService.class);
 
+        ImageButton maps= (ImageButton) findViewById(R.id.maps);
+        maps.setOnClickListener(view -> {
+            abrirMapa();
+        });
+
         foliadaId= getIntent().getIntExtra("foliada_id", -1);
         TextView titulo= (TextView) findViewById(R.id.titulo);
         ImageView img_cartel= (ImageView) findViewById(R.id.cartel);
@@ -96,6 +110,7 @@ public class InfoFoliada extends AppCompatActivity {
             public void onResponse(Call<Foliada> call, Response<Foliada> response) {
                 if (response.isSuccessful()&&response.body()!=null){
                     foliada= response.body();
+
                     titulo.setText(foliada.getNombre());
                     if(foliada.getImaxe()!=null && !foliada.getImaxe().isEmpty()){
                         String nombre = foliada.getImaxe().replace("images", "");
@@ -142,6 +157,18 @@ public class InfoFoliada extends AppCompatActivity {
 
             }
         });
+    }
+
+    private void abrirMapa(){
+        double latitud= foliada.getLatitude();
+        double longitud= foliada.getLonxitude();
+
+        String nombre= foliada.getNombre();
+
+        Uri uri = Uri.parse("https://www.google.com/maps/search/?api=1&query=" + latitud + "," + longitud);
+
+        Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+        startActivity(intent);
 
     }
 
@@ -162,5 +189,4 @@ public class InfoFoliada extends AppCompatActivity {
         startActivity(Intent.createChooser(intent, "Compartir foliada"));
 
     }
-
 }
