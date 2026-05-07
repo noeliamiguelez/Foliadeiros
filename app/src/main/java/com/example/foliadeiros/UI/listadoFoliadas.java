@@ -51,7 +51,7 @@ public class listadoFoliadas extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int id= item.getItemId();
 
-        if (id==R.menu.menu){
+        if (id==R.id.fav){
             Intent intent = new Intent(listadoFoliadas.this, Favoritas.class);
             startActivity(intent);
             return true;

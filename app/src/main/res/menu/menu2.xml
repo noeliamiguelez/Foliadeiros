@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/fav"
+        android:title="Favoritas"/>
+    <item
+        android:id="@+id/comp"
+        android:title="Compartir"
+        android:icon="@drawable/share"/>
+
+</menu>

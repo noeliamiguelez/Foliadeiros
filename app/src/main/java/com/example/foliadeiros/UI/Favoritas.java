@@ -75,13 +75,11 @@ public class Favoritas extends AppCompatActivity {
 
                     foliadas.clear();
                     foliadas.addAll(response.body());
-
                     adapter.notifyDataSetChanged();
                 }else{
                     Toast.makeText(Favoritas.this, "No hay foliadas favoritas", Toast.LENGTH_SHORT).show();
                 }
             }
-
             @Override
             public void onFailure(Call<List<Foliada>> call, Throwable t) {
                 Toast.makeText(Favoritas.this, "Error cargando favoritas", Toast.LENGTH_SHORT).show();

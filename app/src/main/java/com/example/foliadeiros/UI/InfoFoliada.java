@@ -1,7 +1,10 @@
 package com.example.foliadeiros.UI;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -9,7 +12,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -30,10 +35,32 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class InfoFoliada extends AppCompatActivity {
+    private Foliada foliada;
     int foliadaId;
     private ListView listView;
     private FoliadaAdapter adapter;
     private FoliadaApiService api;
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu2, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        int id= item.getItemId();
+
+        if (id==R.id.fav){
+            Intent intent = new Intent(InfoFoliada.this, Favoritas.class);
+            startActivity(intent);
+            return true;
+        }else if (id==R.id.comp){
+            compartirFoliada();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +77,9 @@ public class InfoFoliada extends AppCompatActivity {
             finish();
         });
 
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
         api = RetrofitClient.getClient().create(FoliadaApiService.class);
 
         foliadaId= getIntent().getIntExtra("foliada_id", -1);
@@ -65,8 +95,7 @@ public class InfoFoliada extends AppCompatActivity {
             @Override
             public void onResponse(Call<Foliada> call, Response<Foliada> response) {
                 if (response.isSuccessful()&&response.body()!=null){
-                    Foliada foliada= response.body();
-                    Log.d("ImaxeDEBUG", String.valueOf(foliada.getImaxe()));
+                    foliada= response.body();
                     titulo.setText(foliada.getNombre());
                     if(foliada.getImaxe()!=null && !foliada.getImaxe().isEmpty()){
                         String nombre = foliada.getImaxe().replace("images", "");
@@ -109,11 +138,29 @@ public class InfoFoliada extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<Foliada> call, Throwable t) {
-                Log.e("API ERROR", "Mensaje: " + t.getMessage(), t);
                 Toast.makeText(InfoFoliada.this, "Error al cargar foliada", Toast.LENGTH_SHORT).show();
 
             }
         });
 
     }
+
+    private void compartirFoliada(){
+
+        String texto= foliada.getNombre()+"\n\n"+
+                foliada.getLugar()+"\n"+
+                foliada.getFecha()+"\n";
+                if(foliada.getHora()!=null){
+                    texto+= foliada.getHora()+"\n\n";
+                }
+
+                texto+="Descubre mais en Foliadeir@S";
+
+        Intent intent= new Intent(Intent.ACTION_SEND);
+        intent.setType("text/plain");
+        intent.putExtra(Intent.EXTRA_TEXT, texto);
+        startActivity(Intent.createChooser(intent, "Compartir foliada"));
+
+    }
+
 }
