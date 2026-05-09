@@ -68,7 +68,7 @@ public class Favoritas extends AppCompatActivity {
     }
 
     private void cargarFavoritas() {
-        api.getAll(usuarioId).enqueue(new Callback<List<Foliada>>() {
+        api.getAllFav(usuarioId).enqueue(new Callback<List<Foliada>>() {
             @Override
             public void onResponse(Call<List<Foliada>> call, Response<List<Foliada>> response) {
                 if (response.isSuccessful() && response.body() != null) {

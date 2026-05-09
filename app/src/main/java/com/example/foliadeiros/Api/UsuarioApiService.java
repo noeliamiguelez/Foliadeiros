@@ -7,17 +7,25 @@ import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.DELETE;
 import retrofit2.http.GET;
+import retrofit2.http.PATCH;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
 
 public interface UsuarioApiService {
 
-    @GET("{id}/favoritas")
-    Call<List<Foliada>> getAll(@Path("id") int usuarioId);
+    @GET("usuarios/{id}/favoritas")
+    Call<List<Foliada>> getAllFav(@Path("id") int usuarioId);
 
-    @POST("create")
+    @POST("usuarios/create")
     Call<Usuario> createUser(@Body Usuario usuario);
+
+    @POST("usuarios/{id}/favoritas/{foliadaId}")
+    Call<Void> addFav(@Path("id")int usuarioId, @Path("foliadaId") int foliadaId);
+
+    @DELETE("usuarios/{id}/favoritas/{foliadaId}")
+    Call<Void> deleteFav(@Path("id")int usuarioId, @Path("foliadaId") int foliadaId);
 
 
 }

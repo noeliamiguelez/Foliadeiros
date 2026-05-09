@@ -1,13 +1,11 @@
 package com.example.foliadeiros.UI;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -26,17 +24,12 @@ import com.bumptech.glide.Glide;
 import com.example.foliadeiros.Adapter.FoliadaAdapter;
 import com.example.foliadeiros.Api.FoliadaApiService;
 import com.example.foliadeiros.Api.RetrofitClient;
+import com.example.foliadeiros.Api.UsuarioApiService;
 import com.example.foliadeiros.Model.Foliada;
 import com.example.foliadeiros.Model.Grupo;
+import com.example.foliadeiros.Model.Usuario;
 import com.example.foliadeiros.R;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import retrofit2.Call;
@@ -48,7 +41,11 @@ public class InfoFoliada extends AppCompatActivity {
     int foliadaId;
     private ListView listView;
     private FoliadaAdapter adapter;
-    private FoliadaApiService api;
+    private FoliadaApiService apiFoliada;
+    private UsuarioApiService apiUsuario;
+    private ImageButton fav;
+    private boolean favorita= false;
+    int usuarioId;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -81,19 +78,31 @@ public class InfoFoliada extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+        SharedPreferences prefs= getSharedPreferences("MISPREFS", MODE_PRIVATE);
+        usuarioId= prefs.getInt("usuario_id", -1);
+
         ImageButton bt_atras= (ImageButton) findViewById(R.id.bt_atras);
         bt_atras.setOnClickListener(view -> {
             finish();
         });
-
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        api = RetrofitClient.getClient().create(FoliadaApiService.class);
+        apiFoliada = RetrofitClient.getClient().create(FoliadaApiService.class);
+        apiUsuario= RetrofitClient.getClient().create(UsuarioApiService.class);
 
         ImageButton maps= (ImageButton) findViewById(R.id.maps);
         maps.setOnClickListener(view -> {
             abrirMapa();
+        });
+
+        fav=(ImageButton) findViewById(R.id.bt_favorita);
+        fav.setOnClickListener(v -> {
+            if (favorita){
+                eliminarFavorita();
+            }else{
+                añadirFavorita();
+            }
         });
 
         foliadaId= getIntent().getIntExtra("foliada_id", -1);
@@ -105,11 +114,13 @@ public class InfoFoliada extends AppCompatActivity {
         TextView txt_descripcion= (TextView) findViewById(R.id.descripcion);
         TextView txt_ubi= (TextView) findViewById(R.id.ubicacion);
 
-        api.getById(foliadaId).enqueue(new Callback<Foliada>() {
+        apiFoliada.getById(foliadaId).enqueue(new Callback<Foliada>() {
             @Override
             public void onResponse(Call<Foliada> call, Response<Foliada> response) {
                 if (response.isSuccessful()&&response.body()!=null){
                     foliada= response.body();
+
+                    esFavorita();
 
                     titulo.setText(foliada.getNombre());
                     if(foliada.getImaxe()!=null && !foliada.getImaxe().isEmpty()){
@@ -159,11 +170,69 @@ public class InfoFoliada extends AppCompatActivity {
         });
     }
 
+    private void esFavorita(){
+        apiUsuario.getAllFav(usuarioId).enqueue(new Callback<List<Foliada>>() {
+            @Override
+            public void onResponse(Call<List<Foliada>> call, Response<List<Foliada>> response) {
+
+                if (response.isSuccessful()){
+                    for (Foliada f: response.body()){
+                        if (f.getId()==foliadaId){
+                            favorita= true;
+                            fav.setImageResource(R.drawable.fav);
+                            return;
+                        }
+                    }
+                    favorita=false;
+                    fav.setImageResource(R.drawable.nofav);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<Foliada>> call, Throwable t) {
+            }
+        });
+    }
+
+    private void añadirFavorita(){
+        apiUsuario.addFav(usuarioId, foliadaId).enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()){
+                    favorita=true;
+                    fav.setImageResource(R.drawable.fav);
+                    Toast.makeText(InfoFoliada.this, "Engadida a favoritas", Toast.LENGTH_SHORT).show();
+                }
+            }
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                Toast.makeText(InfoFoliada.this, "Error ao engadir a favoritas", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void eliminarFavorita(){
+        apiUsuario.deleteFav(usuarioId, foliadaId).enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()){
+                    favorita= false;
+                    fav.setImageResource(R.drawable.nofav);
+                    Toast.makeText(InfoFoliada.this, "Eliminada de favoritas", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                Toast.makeText(InfoFoliada.this, "Error ao eliminar de favoritas", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+    }
+
     private void abrirMapa(){
         double latitud= foliada.getLatitude();
         double longitud= foliada.getLonxitude();
-
-        String nombre= foliada.getNombre();
 
         Uri uri = Uri.parse("https://www.google.com/maps/search/?api=1&query=" + latitud + "," + longitud);
 

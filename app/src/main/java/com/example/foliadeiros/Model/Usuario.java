@@ -12,6 +12,9 @@ public class Usuario {
 
     private Set<Foliada> favoritas= new HashSet<>();
 
+    public Usuario() {
+    }
+
     public Usuario(String nombre, String email, String password) {
         this.nombre = nombre;
         this.email = email;

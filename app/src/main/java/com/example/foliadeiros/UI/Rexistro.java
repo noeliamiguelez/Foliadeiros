@@ -1,6 +1,7 @@
 package com.example.foliadeiros.UI;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
@@ -74,6 +75,13 @@ public class Rexistro extends AppCompatActivity {
                     @Override
                     public void onResponse(Call<Usuario> call, Response<Usuario> response) {
                         if (response.isSuccessful()){
+                            Usuario usuario= response.body();
+
+                            SharedPreferences prefs= getSharedPreferences("MISPREFS", MODE_PRIVATE);
+                            SharedPreferences.Editor editor = prefs.edit();
+                            editor.putInt("usuario_id", usuario.getId());
+                            editor.apply();
+
                             Toast.makeText(Rexistro.this, "Usuario creado", Toast.LENGTH_SHORT).show();
                             Intent intent= new Intent(Rexistro.this, Provincias.class);
                             startActivity(intent);
